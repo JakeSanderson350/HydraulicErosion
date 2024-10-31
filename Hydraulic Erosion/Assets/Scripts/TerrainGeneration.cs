@@ -47,9 +47,4 @@ public class TerrainGeneration : MonoBehaviour
     {
         
     }
-
-    private void FixedUpdate()
-    {
-        
-    }
 }
