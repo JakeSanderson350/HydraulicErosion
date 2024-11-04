@@ -5,18 +5,40 @@ using UnityEngine;
 
 public class HydraulicErosion : MonoBehaviour
 {
-    public bool mIsEroding = false;
+    private bool mIsEroding = false;
 
+    //Terrain data
     private Terrain mTerrain;
+    private int mSideSize;
 
+    //Particle data
     [SerializeField]
-    public int maxParticles;
-    public int currentParticle = 0;
+    private int mMaxParticles;
+    private int currentParticle = 0;
+
+    struct Particle
+    {
+        public Particle(Vector2 _pos)
+        {
+            mPos = _pos;
+            mSpeed = Vector2.zero;
+
+            mVolume = 1.0f;
+            mSediment = 0.0f;
+        }
+
+        public Vector2 mPos;
+        public Vector2 mSpeed;
+
+        public float mVolume;
+        public float mSediment;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         mTerrain = GetComponent<Terrain>();
+        mSideSize = mTerrain.terrainData.heightmapResolution;
     }
 
     // Update is called once per frame
@@ -37,14 +59,38 @@ public class HydraulicErosion : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (currentParticle < maxParticles)
+        if (currentParticle < mMaxParticles)
         {
             Erode();
+            currentParticle++;
         }
     }
 
     private void Erode()
     {
+        Vector2 startPos = new Vector2(Random.Range(1.0f, (float)mSideSize), Random.Range(1.0f, (float)mSideSize));
+        Particle drop = new Particle(startPos);
 
+        //While there is still water in drop
+        while (drop.mVolume > 0.01f)
+        {
+            //Get floored position and check if in bounds
+            Vector2 currentPos = new Vector2(Mathf.FloorToInt(startPos.x), Mathf.FloorToInt(startPos.y));
+
+            if (currentPos.x <= 0 || currentPos.y <= 0 || currentPos.x >= mSideSize || currentPos.y >= mSideSize) break;
+
+            //Check for lowest neighbor
+
+
+            //Change particle speed and pos
+
+
+            //Calculate sediment capacity
+
+
+            //Change heighmap and drop properties
+        }
     }
+
+
 }
