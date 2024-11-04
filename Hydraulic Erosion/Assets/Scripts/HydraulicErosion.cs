@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -88,9 +89,16 @@ public class HydraulicErosion : MonoBehaviour
             //Calculate sediment capacity
 
 
-            //Change heighmap and drop properties
+            //Change heightmap and drop properties
         }
     }
 
+    private Vector2 lowestNeighbor(Vector2 _pos)
+    {
+        Vector2 lowestNeighbor = Vector2.zero;
+        float[,] heights = new float[mSideSize, mSideSize];
+        //mTerrain.terrainData.
 
+        return lowestNeighbor;
+    }
 }
