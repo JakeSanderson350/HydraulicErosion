@@ -10,6 +10,7 @@ public class HydraulicErosion : MonoBehaviour
 
     //Terrain data
     private Terrain mTerrain;
+    private float[,] mHeights; //Make sure to setHeights after changing this
     private int mSideSize;
 
     //Particle data
@@ -40,6 +41,7 @@ public class HydraulicErosion : MonoBehaviour
     {
         mTerrain = GetComponent<Terrain>();
         mSideSize = mTerrain.terrainData.heightmapResolution;
+        mHeights = mTerrain.terrainData.GetHeights(0, 0, mSideSize, mSideSize);
     }
 
     // Update is called once per frame
@@ -76,12 +78,13 @@ public class HydraulicErosion : MonoBehaviour
         while (drop.mVolume > 0.01f)
         {
             //Get floored position and check if in bounds
-            Vector2 currentPos = new Vector2(Mathf.FloorToInt(startPos.x), Mathf.FloorToInt(startPos.y));
+            Vector2 currentPos = new Vector2(Mathf.FloorToInt(drop.mPos.x), Mathf.FloorToInt(drop.mPos.y));
 
             if (currentPos.x <= 0 || currentPos.y <= 0 || currentPos.x >= mSideSize || currentPos.y >= mSideSize) break;
 
             //Check for lowest neighbor
-
+            Vector2 nextLowest = lowestNeighbor(currentPos);
+            Vector2 lowestDirection = nextLowest - currentPos;
 
             //Change particle speed and pos
 
@@ -95,9 +98,20 @@ public class HydraulicErosion : MonoBehaviour
 
     private Vector2 lowestNeighbor(Vector2 _pos)
     {
-        Vector2 lowestNeighbor = Vector2.zero;
-        float[,] heights = new float[mSideSize, mSideSize];
-        //mTerrain.terrainData.
+        Vector2 lowestNeighbor = _pos;
+
+        for (int y = -1; y <= 1; y++)
+        {
+            for (int x = -1; x <= 1; x++)
+            {
+                //Check if neighbor is lower than the current lowest
+                if ((x != 0 && y != 0) && mHeights[(int)_pos.y + y, (int)_pos.x + x] < mHeights[(int)lowestNeighbor.y, (int)lowestNeighbor.x])
+                {
+                    Vector2 tmpVec = new Vector2(x, y);
+                    lowestNeighbor = tmpVec + _pos;
+                }
+            }
+        }
 
         return lowestNeighbor;
     }
