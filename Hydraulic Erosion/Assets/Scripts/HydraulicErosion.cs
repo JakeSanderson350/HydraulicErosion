@@ -91,9 +91,10 @@ public class HydraulicErosion : MonoBehaviour
         Particle drop = new Particle(startPos);
 
         //While there is still water in drop
-        while (drop.mVolume > 0.1f)
+        while (drop.mVolume > 0.01f)
         {
             Vector2 currentPos = new Vector2(drop.mPos.x, drop.mPos.y);
+            Debug.Log("Pos: " + currentPos);
 
             if (currentPos.x <= 1 || currentPos.y <= 1 || currentPos.x >= mSideSize - 1 || currentPos.y >= mSideSize - 1) break;
 
@@ -101,7 +102,7 @@ public class HydraulicErosion : MonoBehaviour
             Vector2 lowestDirection = calcFlowDirection(currentPos);
             Debug.Log("Lowest Direction: " + lowestDirection);
 
-            //if (lowestDirection == Vector2.zero) break;
+            if (lowestDirection == Vector2.zero) break;
 
             //Change particle speed and pos
             drop.mVelocity = /*Time.deltaTime * */(lowestDirection); //a = F/m
@@ -110,12 +111,13 @@ public class HydraulicErosion : MonoBehaviour
             if (drop.mPos.x <= 0 || drop.mPos.y <= 0 || drop.mPos.x >= mSideSize || drop.mPos.y >= mSideSize) break;
 
             //Calculate sediment capacity
+            float terrainHeight = mTerrain.terrainData.size.y;
             float oldHeight = calcInterpolatedHeight(currentPos);
             float newHeight = calcInterpolatedHeight(drop.mPos);
             float deltaHeight = oldHeight - newHeight;
             Debug.Log("DeltaH: " + deltaHeight);
 
-            float sedCapacity = Mathf.Max(deltaHeight * drop.mSpeed * drop.mVolume, minSedCapacity);
+            float sedCapacity = Mathf.Max(-deltaHeight * drop.mSpeed * drop.mVolume, minSedCapacity);
 
             //Change heightmap and drop properties
             if (drop.mSediment < sedCapacity)
@@ -169,7 +171,8 @@ public class HydraulicErosion : MonoBehaviour
     {
         Vector2Int coordPos = new Vector2Int((int)_pos.x, (int)_pos.y);
 
-        if (coordPos.x <= 1 || coordPos.y <= 1 || coordPos.x >= mSideSize - 2 || coordPos.y >= mSideSize - 2) return Vector2.zero;
+        if (coordPos.x <= 1 || coordPos.y <= 1 || coordPos.x >= mSideSize - 2 || coordPos.y >= mSideSize - 2) return new Vector2(
+            Random.Range(-1.0f, 1.0f), Random.Range(-1.0f, 1.0f));
 
         //_pos offset within cell 0-1
         float x = _pos.x - coordPos.x;
@@ -193,7 +196,30 @@ public class HydraulicErosion : MonoBehaviour
     {
         Vector2Int coordPos = new Vector2Int((int)_pos.x, (int)_pos.y);
 
-        if (coordPos.x <= 1 || coordPos.y <= 1 || coordPos.x >= mSideSize - 2 || coordPos.y >= mSideSize - 2) return 0.0f; //Probably need to change this
+        if (coordPos.x <= 1 || coordPos.y <= 1 || coordPos.x >= mSideSize - 2 || coordPos.y >= mSideSize - 2)
+        {
+            int newX = coordPos.x, newY = coordPos.y;
+            //If not gonna be in bounds get height of point next to it
+            if (coordPos.x <= 1)
+            {
+                newX = 2;
+            }
+            if (coordPos.y <= 1)
+            {
+                newY = 2;
+            }
+            if (coordPos.x >= mSideSize - 2)
+            {
+                newX = mSideSize - 3;
+            }
+            if (coordPos.y >= mSideSize - 2)
+            {
+                newY = mSideSize - 3;
+            }
+
+            return mHeights[newY, newX];
+        }
+
 
         //_pos offset within cell 0-1
         float x = _pos.x - coordPos.x;
@@ -210,5 +236,3 @@ public class HydraulicErosion : MonoBehaviour
         return height;
     }
 }
-
-
