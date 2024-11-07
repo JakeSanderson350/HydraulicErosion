@@ -428,6 +428,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mMaxParticles: 10
+  minSedCapacity: 0.01
+  depositionRate: 0.1
+  evaporationRate: 0.001
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
