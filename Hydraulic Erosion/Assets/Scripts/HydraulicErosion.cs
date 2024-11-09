@@ -10,7 +10,7 @@ public class HydraulicErosion : MonoBehaviour
 
     //Terrain data
     private Terrain mTerrain;
-    private float[,] mHeights; //Make sure to setHeights after changing this
+    private float[,] mHeights; //indexed as [y, x]
     private int mSideSize;
 
     //Particle data
@@ -77,7 +77,7 @@ public class HydraulicErosion : MonoBehaviour
         }
         else if (mCurrentParticle == mMaxParticles)
         {
-            SmoothTerrain();
+            SmoothTerrainGaussianBlur();
             mCurrentParticle++;
         }
     }
@@ -227,7 +227,7 @@ public class HydraulicErosion : MonoBehaviour
                 {
                     for(int j = -1; j <= 1; j++)
                     {
-                        avgHeight += mHeights[y + i, x + j];
+                        avgHeight += mHeights[y + i, x + j]/* - mHeights[y, x]*/;
                     }
                 }
 
@@ -238,5 +238,86 @@ public class HydraulicErosion : MonoBehaviour
 
         mTerrain.terrainData.SetHeights(0, 0, mHeights);
         Debug.Log("Smoothed");
+    }
+
+    private void SmoothTerrainGaussianBlur()
+    {
+        List<(int index, float value)> filterKernel = new List<(int, float)>
+        {
+            (-3, 0.006f), (-2, 0.061f), (-1, 0.242f),
+            (0, 0.383f), (1, 0.242f), (2, 0.061f), (3, 0.006f)
+        };
+
+        float[,] tmpArray = new float[mSideSize, mSideSize];
+
+        //Filter horizantally
+        for (int y = 0; y < mSideSize; y++)
+        {
+            for (int x = 0; x < mSideSize; x++)
+            {
+                tmpArray[y, x] = computeXvalue(mHeights, x, y, filterKernel);
+            }
+        }
+
+        //Filter vertically
+        for (int x = 0; x < mSideSize; x++)
+        {
+            for(int y = 0; y < mSideSize; y++)
+            {
+                mHeights[y, x] = computeYvalue(tmpArray, x, y, filterKernel);
+            }
+        }
+
+        mTerrain.terrainData.SetHeights(0, 0, mHeights);
+        Debug.Log("Smoothed");
+    }
+
+    private float computeXvalue(float[,] _array, int x, int y, List<(int index, float value)> filterKernel)
+    {
+        int offset = 0;
+        float computedValue = 0.0f;
+
+        foreach (var filterPair in filterKernel)
+        {
+            if (isFilterInBounds(x, mSideSize, filterPair.index))
+            {
+                offset = 0;
+            }
+            else
+            {
+                offset = filterPair.index;
+            }
+
+            computedValue += filterPair.value * _array[y, x + offset];
+        }
+
+        return computedValue;
+    }
+
+    private float computeYvalue(float[,] _array, int x, int y, List<(int index, float value)> filterKernel)
+    {
+        int offset = 0;
+        float computedValue = 0.0f;
+
+        foreach (var filterPair in filterKernel)
+        {
+            if (isFilterInBounds(y, mSideSize, filterPair.index))
+            {
+                offset = 0;
+            }
+            else
+            {
+                offset = filterPair.index;
+            }
+
+            computedValue += filterPair.value * _array[y + offset, x];
+        }
+
+        return computedValue;
+    }
+
+    private static bool isFilterInBounds(int _index, int _size, int _offset)
+    {
+        return _index + _offset >= _size || _index + _offset <= 0;
     }
 }
