@@ -115,7 +115,6 @@ public class HydraulicErosion : MonoBehaviour
             {
                 //Erode terrain
                 float amountToErode = Mathf.Min(sedCapacity - drop.mSediment, -(deltaHeight));
-                if (amountToErode > 0.001f) amountToErode = 0.001f;
 
                 drop.mSediment += amountToErode;
                 mHeights[(int)currentPos.y, (int)currentPos.x] -= amountToErode;
@@ -124,7 +123,6 @@ public class HydraulicErosion : MonoBehaviour
             {
                 //Desposit sediment
                 float amountToDeposit = (deltaHeight > 0) ? Mathf.Min(deltaHeight, drop.mSediment) : drop.mSediment - sedCapacity;
-                if (amountToDeposit  > 0.001f) amountToDeposit = 0.001f;
 
                 drop.mSediment -= amountToDeposit;
                 mHeights[(int)currentPos.y, (int)currentPos.x] += amountToDeposit;
