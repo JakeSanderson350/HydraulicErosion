@@ -210,7 +210,7 @@ public class HydraulicErosion : MonoBehaviour
     private void OnGUI()
     {
         //Background Box
-        GUI.Box(new Rect(10, 10, 150, 200), "Erosion Menu");
+        GUI.Box(new Rect(10, 10, 150, 210), "Erosion Menu");
 
         //Make new terrain
         if (GUI.Button(new Rect(10, 30, 110, 20), "Generate Terrain"))
@@ -254,8 +254,11 @@ public class HydraulicErosion : MonoBehaviour
             {
                 mSmoothType = TerrainSmoothing.SmoothingType.NoSmooth;
 
-                mHeights = mUnsmoothedHeights;
-                mTerrain.terrainData.SetHeights(0, 0, mHeights);
+                if (mHeights != mUnsmoothedHeights)
+                {
+                    mHeights = mUnsmoothedHeights;
+                    mTerrain.terrainData.SetHeights(0, 0, mHeights);
+                }
             }
         }
 
