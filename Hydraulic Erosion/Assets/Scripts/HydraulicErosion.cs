@@ -10,22 +10,24 @@ public class HydraulicErosion : MonoBehaviour
 
     //Terrain data
     private Terrain mTerrain;
+    private int mOctaves = 1;
     private float[,] mHeights; //indexed as [y, x]
+    private float[,] mUnsmoothedHeights; //indexed as [y, x]
     private int mSideSize;
-
-    //Particle data
-    [SerializeField]
-    private int mMaxParticles;
-    public static int mNumIterations = 100;
-    private int mCurrentParticle = 0;
 
     //Erosion data
     [Range(0f, 1f)]
     public float minSedCapacity = 0.01f;
-    [Range(0f, 1f)]
-    public float depositionRate = 0.1f;
-    [Range(0f, 1f)]
-    public float evaporationRate = 0.1f;
+
+    //Smoothing data
+    private bool mHasSmoothing = false;
+    TerrainSmoothing.SmoothingType mSmoothType = TerrainSmoothing.SmoothingType.NoSmooth;
+
+    //Particle data
+    [SerializeField]
+    private int mMaxParticles;
+    public static int mNumIterations = 500;
+    private int mCurrentParticle = 0;
 
     struct Particle
     {
@@ -35,7 +37,6 @@ public class HydraulicErosion : MonoBehaviour
             mVelocity = Vector2.zero;
             mSpeed = 1.0f;
 
-            mVolume = 1.0f;
             mSediment = 0.0f;
             mIterations = mNumIterations;
         }
@@ -44,7 +45,6 @@ public class HydraulicErosion : MonoBehaviour
         public Vector2 mVelocity;
         public float mSpeed;
 
-        public float mVolume;
         public float mSediment;
         public float mIterations;
     }
@@ -57,16 +57,6 @@ public class HydraulicErosion : MonoBehaviour
         mHeights = mTerrain.terrainData.GetHeights(0, 0, mSideSize, mSideSize);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown("e"))
-        {
-            mIsEroding = !mIsEroding;
-            Debug.Log(mIsEroding ? "Eroding" : "Not Eroding");
-        }
-    }
-
     void FixedUpdate()
     {
         if (mCurrentParticle < mMaxParticles && mIsEroding)
@@ -75,10 +65,11 @@ public class HydraulicErosion : MonoBehaviour
             if (mCurrentParticle % 50 == 0) Debug.Log("Particle Num: " +  mCurrentParticle);
             mCurrentParticle++;
         }
-        else if (mCurrentParticle == mMaxParticles)
+        else if (mCurrentParticle == mMaxParticles) //Done eroding
         {
-            mHeights = TerrainSmoothing.SmoothTerrainGaussianBlur(mHeights);
-            mTerrain.terrainData.SetHeights(0, 0, mHeights);
+            Debug.Log("Erosion finished");
+            mIsEroding = false;
+            mUnsmoothedHeights = mHeights;
             mCurrentParticle++;
         }
     }
@@ -117,7 +108,7 @@ public class HydraulicErosion : MonoBehaviour
             float newHeight = calcInterpolatedHeight(drop.mPos);
             float deltaHeight = oldHeight - newHeight;
 
-            float sedCapacity = Mathf.Max(-deltaHeight * drop.mSpeed * drop.mVolume, minSedCapacity);
+            float sedCapacity = Mathf.Max(-deltaHeight * drop.mSpeed, minSedCapacity);
 
             //Change heightmap and drop properties
             if (drop.mSediment < sedCapacity)
@@ -141,7 +132,6 @@ public class HydraulicErosion : MonoBehaviour
 
             //Evaporate drop
             drop.mSpeed = Mathf.Sqrt(drop.mSpeed * drop.mSpeed + deltaHeight * 4); //Magic number is "gravity" multiplier
-            drop.mVolume *= (1.0f - 1 * (evaporationRate));
             drop.mIterations--;
         }
 
@@ -219,19 +209,67 @@ public class HydraulicErosion : MonoBehaviour
     private void OnGUI()
     {
         //Background Box
-        GUI.Box(new Rect(10, 10, 100, 150), "Erosion Menu");
+        GUI.Box(new Rect(10, 10, 150, 200), "Erosion Menu");
 
         //Make new terrain
         if (GUI.Button(new Rect(10, 30, 110, 20), "Generate Terrain"))
         {
-            mHeights = TerrainGeneration.GenerateTerrain(mTerrain, Random.Range(-1000, 1000));
+            mHeights = TerrainGeneration.GenerateTerrain(mTerrain, Random.Range(-1000, 1000), mOctaves);
             mTerrain.terrainData.SetHeights(0, 0, mHeights);
         }
 
-        //GUI.TextField(new Rect(10, 30, 110, 20)),  mMaxParticles.ToString)
-        //if ()
-        {
+        mOctaves = (int)GUI.HorizontalSlider(new Rect(10, 80, 110, 20), mOctaves, 1, 10);
+        GUI.Box(new Rect(10, 60, 130, 20), "Octaves: " + mOctaves);
 
+        //Change number of particles to simulate
+        if (!mIsEroding) //Only show up when erosion isn't happening
+        {
+            mMaxParticles = (int)GUI.HorizontalSlider(new Rect(10, 110, 110, 20), mMaxParticles, 0, 1000);
+            GUI.Box(new Rect(10, 90, 130, 20), "Max Particles: " + mMaxParticles);
+        }
+
+        //Select smoothing method
+        if (mCurrentParticle > mMaxParticles) //Only show up when erosion is complete
+        {
+            mHasSmoothing = GUI.Toggle(new Rect(10, 180, 130, 20), mHasSmoothing, "Toggle Smoothing");
+            if (mHasSmoothing)
+            {
+                if (GUI.Button(new Rect(10, 200, 70, 20), "Averages"))
+                {
+                    mSmoothType = TerrainSmoothing.SmoothingType.AverageHeights;
+
+                    mHeights = TerrainSmoothing.SmoothTerrain(mUnsmoothedHeights, mSmoothType);
+                    mTerrain.terrainData.SetHeights(0, 0, mHeights);
+                }
+                if (GUI.Button(new Rect(90, 200, 70, 20), "Gaussian"))
+                {
+                    mSmoothType = TerrainSmoothing.SmoothingType.GaussianBlur;
+
+                    mHeights = TerrainSmoothing.SmoothTerrain(mUnsmoothedHeights, mSmoothType);
+                    mTerrain.terrainData.SetHeights(0, 0, mHeights);
+                }
+            }
+            else
+            {
+                mSmoothType = TerrainSmoothing.SmoothingType.NoSmooth;
+
+                mHeights = mUnsmoothedHeights;
+                mTerrain.terrainData.SetHeights(0, 0, mHeights);
+            }
+        }
+
+        //Start/pause/reset erosion
+        if (GUI.Button(new Rect(10, 130, 130, 20), "Toggle Erosion"))
+        {
+            mIsEroding = !mIsEroding;
+            Debug.Log(mIsEroding ? "Eroding" : "Not Eroding");
+        }
+        if (GUI.Button(new Rect(10, 150, 130, 20), "Reset Erosion"))
+        {
+            mHeights = TerrainGeneration.GenerateTerrain(mTerrain, Random.Range(-1000, 1000), mOctaves);
+            mTerrain.terrainData.SetHeights(0, 0, mHeights);
+            mCurrentParticle = 0;
+            mIsEroding = false;
         }
     }
 }

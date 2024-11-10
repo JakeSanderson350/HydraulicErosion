@@ -4,8 +4,31 @@ using UnityEngine;
 
 public static class TerrainSmoothing
 {
+    public enum SmoothingType
+    {
+        NoSmooth,
+        AverageHeights,
+        GaussianBlur
+    }
+
+    public static float[,] SmoothTerrain(float[,] _heights, SmoothingType _smoothType)
+    {
+        if (_smoothType == SmoothingType.AverageHeights)
+        {
+            return SmoothTerrainAverageHeights(_heights);
+        }
+        else if (_smoothType == SmoothingType.GaussianBlur)
+        {
+            return SmoothTerrainGaussianBlur(_heights);
+        }
+        else
+        {
+            return _heights;
+        }
+    }
+
     //Average heights smoothing
-    public static float[,] SmoothTerrain(float[,] _heights)
+    private static float[,] SmoothTerrainAverageHeights(float[,] _heights)
     {
         int sideSize = _heights.GetLength(0);
         float[,] newHeights = new float[sideSize, sideSize];
@@ -20,7 +43,7 @@ public static class TerrainSmoothing
                 {
                     for (int j = -1; j <= 1; j++)
                     {
-                        avgHeight += newHeights[y + i, x + j];
+                        avgHeight += _heights[y + i, x + j];
                     }
                 }
 
@@ -29,7 +52,7 @@ public static class TerrainSmoothing
             }
         }
 
-        Debug.Log("Smoothed");
+        Debug.Log("Avg Smoothed");
         return newHeights;
     }
 
@@ -41,7 +64,7 @@ public static class TerrainSmoothing
             (0, 0.383f), (1, 0.242f), (2, 0.061f), (3, 0.006f)
         };
 
-    public static float[,] SmoothTerrainGaussianBlur(float[,] _heights)
+    private static float[,] SmoothTerrainGaussianBlur(float[,] _heights)
     {
         int sideSize = _heights.GetLength(0);
         float[,] tmpArray = new float[sideSize, sideSize];
@@ -65,7 +88,7 @@ public static class TerrainSmoothing
             }
         }
 
-        Debug.Log("Smoothed");
+        Debug.Log("Gauss Smoothed");
         return newArray;
     }
 
