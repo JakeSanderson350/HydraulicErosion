@@ -155,6 +155,7 @@ public class HydraulicErosion : MonoBehaviour
         float bottomRightHeight = mHeights[coordPos.y + 1, coordPos.x + 1];
 
         //Calculate directions using bilinear interpolation
+        //https://github.com/SebLague/Hydraulic-Erosion/blob/master/Assets/Scripts/Erosion.cs
         float directionX = (topRightHeight - topLeftHeight) * (1 - y) + (bottomRightHeight - bottomLeftHeight) * y;
         float directionY = (bottomLeftHeight - topLeftHeight) * (1 - x) + (bottomRightHeight - topRightHeight) * x;
 

@@ -227,6 +227,7 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
+  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -308,6 +309,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!114 &963194229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c4e8e528d9165a418fba2677e8239bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movementSpeed: 10
+  rotationSpeed: 5
 --- !u!1 &1115314739
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,7 +355,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c5793f21f83aa24198f0244d1294840, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 1337
 --- !u!154 &1115314741
 TerrainCollider:
   m_ObjectHideFlags: 0
@@ -428,10 +442,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35bcd4f707bdff4c832d2f0fe8bd40f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mMaxParticles: 300
   minSedCapacity: 0.01
-  depositionRate: 0.1
-  evaporationRate: 0.001
+  mMaxParticles: 300
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

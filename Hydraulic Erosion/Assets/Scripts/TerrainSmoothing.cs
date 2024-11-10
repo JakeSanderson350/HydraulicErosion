@@ -57,6 +57,7 @@ public static class TerrainSmoothing
     }
 
     //Gaussion Blur smoothing
+    //https://gillesleblanc.wordpress.com/2012/08/24/using-gaussian-blurring-on-heightmap/#:~:text=This%20type%20of%20filter%20is,case%20in%20the%20mean%20filter
 
     private static List<(int index, float value)> filterKernel = new List<(int, float)>
         {
