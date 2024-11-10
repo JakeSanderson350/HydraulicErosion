@@ -77,7 +77,8 @@ public class HydraulicErosion : MonoBehaviour
         }
         else if (mCurrentParticle == mMaxParticles)
         {
-            SmoothTerrainGaussianBlur();
+            mHeights = TerrainSmoothing.SmoothTerrainGaussianBlur(mHeights);
+            mTerrain.terrainData.SetHeights(0, 0, mHeights);
             mCurrentParticle++;
         }
     }
