@@ -427,7 +427,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35bcd4f707bdff4c832d2f0fe8bd40f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mMaxParticles: 100
+  mMaxParticles: 10000
   minSedCapacity: 0.01
   depositionRate: 0.1
   evaporationRate: 0.001
