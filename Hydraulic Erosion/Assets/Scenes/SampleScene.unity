@@ -340,6 +340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c5793f21f83aa24198f0244d1294840, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  seed: 1337
 --- !u!154 &1115314741
 TerrainCollider:
   m_ObjectHideFlags: 0
@@ -427,7 +428,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f35bcd4f707bdff4c832d2f0fe8bd40f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mMaxParticles: 10000
+  mMaxParticles: 300
   minSedCapacity: 0.01
   depositionRate: 0.1
   evaporationRate: 0.001

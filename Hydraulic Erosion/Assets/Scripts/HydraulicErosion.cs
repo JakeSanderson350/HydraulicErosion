@@ -215,4 +215,23 @@ public class HydraulicErosion : MonoBehaviour
 
         return height;
     }
+
+    private void OnGUI()
+    {
+        //Background Box
+        GUI.Box(new Rect(10, 10, 100, 150), "Erosion Menu");
+
+        //Make new terrain
+        if (GUI.Button(new Rect(10, 30, 110, 20), "Generate Terrain"))
+        {
+            mHeights = TerrainGeneration.GenerateTerrain(mTerrain, Random.Range(-1000, 1000));
+            mTerrain.terrainData.SetHeights(0, 0, mHeights);
+        }
+
+        //GUI.TextField(new Rect(10, 30, 110, 20)),  mMaxParticles.ToString)
+        //if ()
+        {
+
+        }
+    }
 }
